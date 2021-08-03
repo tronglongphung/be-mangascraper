@@ -4,8 +4,9 @@ const typeDefs = gql`
   type User {
     _id: ID
     name: String
+    password: String
     email: String
-    favorite: [Favorites]
+    savedManga: [String]
   }
 
   type Auth {
@@ -35,10 +36,6 @@ const typeDefs = gql`
     views: Float
     upload_date: String
     chapter_url: String
-  }
-
-  type Favorites {
-    manga: [Manga]
   }
 
   type Mutation {

@@ -3,17 +3,17 @@ const db = require("./connection");
 const { User } = require("../models");
 
 db.once("open", async () => {
+  await User.deleteMany({});
+
   await User.create({
-    firstName: "Pamela",
-    lastName: "Washington",
+    name: "Pamela",
     email: "pamela@testmail.com",
     password: "password12345",
     savedManga: ["naruto"],
   });
 
   await User.create({
-    firstName: "Elijah",
-    lastName: "Holt",
+    name: "Elijah",
     email: "eholt@testmail.com",
     password: "password12345",
     savedManga: ["bleach"],
