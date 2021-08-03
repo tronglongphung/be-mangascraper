@@ -1,1 +1,1 @@
-# be-mangascraper
+Manga Scraper Backend
