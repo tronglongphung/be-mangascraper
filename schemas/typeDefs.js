@@ -22,7 +22,7 @@ const typeDefs = gql`
     name: String
     alternative: [String]
     authors: [String]
-    status: Strings
+    status: String
     genres: [String]
     last_updated: String
     description: String
@@ -32,7 +32,7 @@ const typeDefs = gql`
 
   type Chapter {
     chapter: String
-    views: Number
+    views: Float
     upload_date: String
     chapter_url: String
   }
