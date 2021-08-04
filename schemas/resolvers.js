@@ -1,6 +1,7 @@
 const { AuthenticationError } = require("apollo-server-express");
 const { User } = require("../models");
 const { signToken } = require("../utils/auth");
+const Manga = require("manganelo-scraper").scraper;
 
 const resolvers = {
   Query: {
@@ -9,12 +10,14 @@ const resolvers = {
         const user = await User.findById(context.user._id);
         return user;
       }
-
       throw new AuthenticationError("Not logged in");
     },
-    manga: async (parent, args, context) => {
+
+    manga: async (parent, args, context, info) => {
+      info.cacheControl.setCacheHint({ maxAge: 30 });
       const data = await Manga.getMangaDataFromSearch(args.name);
-      return data[0];
+      console.log(data);
+      return data;
     },
   },
   Mutation: {
@@ -30,7 +33,6 @@ const resolvers = {
           new: true,
         });
       }
-
       throw new AuthenticationError("Not logged in");
     },
     login: async (parent, { email, password }) => {

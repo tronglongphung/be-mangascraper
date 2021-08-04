@@ -1,6 +1,17 @@
 const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
+  enum CacheControlScope {
+    PUBLIC
+    PRIVATE
+  }
+
+  directive @cacheControl(
+    maxAge: Int
+    scope: CacheControlScope
+    inheritMaxAge: Boolean
+  ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
   type User {
     _id: ID
     name: String
@@ -19,15 +30,21 @@ const typeDefs = gql`
     manga(name: String!): [Manga]
   }
 
+  type Rating {
+    ratingFromFive: String
+    votes: Float
+  }
+
   type Manga {
     name: String
     alternative: [String]
     authors: [String]
     status: String
     genres: [String]
-    last_updated: String
+    rating: Rating
+    updated: String
     description: String
-    manga_url: String
+    url: String
     chapters: [Chapter]
   }
 
