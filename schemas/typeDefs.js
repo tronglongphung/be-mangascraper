@@ -52,7 +52,7 @@ const typeDefs = gql`
     chapter: String
     views: Float
     upload_date: String
-    chapter_url: String
+    url: String
   }
 
   type Mutation {
