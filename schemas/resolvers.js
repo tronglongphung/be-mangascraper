@@ -1,6 +1,7 @@
 const { AuthenticationError } = require("apollo-server-express");
 const { User } = require("../models");
 const { signToken } = require("../utils/auth");
+const { getChapterPanels } = require("../utils/chapterPanels");
 const Manga = require("manganelo-scraper").scraper;
 
 const resolvers = {
@@ -18,6 +19,19 @@ const resolvers = {
       const data = await Manga.getMangaDataFromSearch(args.name);
       console.log(data);
       return data;
+    },
+
+    chapter: async (parent, args, context, info) => {
+      const panelData = await getChapterPanels(args.url);
+      const cleanPanels = panelData.map((panel) => {
+        return {
+          id: panel.id,
+          uri: `/${panel.uri.split("/")[5]}/${panel.uri.split("/")[6]}/${
+            panel.uri.split("/")[7]
+          }`,
+        };
+      });
+      return cleanPanels;
     },
   },
   Mutation: {

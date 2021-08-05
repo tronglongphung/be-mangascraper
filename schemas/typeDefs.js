@@ -28,6 +28,7 @@ const typeDefs = gql`
   type Query {
     user: User
     manga(name: String!): [Manga]
+    chapter(url: String!): [Panel]
   }
 
   type Rating {
@@ -53,6 +54,11 @@ const typeDefs = gql`
     views: Float
     upload_date: String
     url: String
+  }
+
+  type Panel {
+    id: String
+    uri: String
   }
 
   type Mutation {
