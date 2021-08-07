@@ -3,6 +3,7 @@ const { User } = require("../models");
 const { signToken } = require("../utils/auth");
 const { getChapterPanels } = require("../utils/chapterPanels");
 const Manga = require("manganelo-scraper").scraper;
+const { fetchCoverImg } = require("../utils/fetchCoverImg");
 
 const resolvers = {
   Query: {
@@ -14,11 +15,38 @@ const resolvers = {
       throw new AuthenticationError("Not logged in");
     },
 
-    manga: async (parent, args, context, info) => {
-      info.cacheControl.setCacheHint({ maxAge: 30 });
+    mangaData: async (parent, args, context, info) => {
+      const rawData = await Manga.getMangaDataFromURL(args.url);
+      // TODO: scrape cover image
+      const coverImg = await fetchCoverImg(args.url);
+
+      return {
+        name: rawData.name,
+        status: rawData.status,
+        chapters: rawData.chapters,
+        url: `${rawData.url.split("/")[3]}`,
+        coverImg: coverImg,
+      };
+    },
+
+    mangas: async (parent, args, context, info) => {
       const data = await Manga.getMangaDataFromSearch(args.name);
       console.log(data);
       return data;
+    },
+
+    manga: async (parent, args, context, info) => {
+      // mangaKey should look like manga-aa951409
+      const data = await Manga.getMangaDataFromURL(
+        `https://readmanganato.com/${args.key}`
+        // `https://readmanganato.com/manga-aa951409`
+      );
+      console.log(data);
+      return data;
+      // return {
+      //   ...data,
+      //   url: `${data.url.split("/")[3]}/${data.url.split("/")[4]}`,
+      // };
     },
 
     chapter: async (parent, args, context, info) => {

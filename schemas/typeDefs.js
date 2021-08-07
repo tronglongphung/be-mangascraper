@@ -27,8 +27,11 @@ const typeDefs = gql`
 
   type Query {
     user: User
-    manga(name: String!): [Manga]
+    mangas(name: String!): [Manga]
+    manga(key: String!): Manga
     chapter(url: String!): [Panel]
+    allMangas: [Manga]
+    mangaData(url: String!): Manga
   }
 
   type Rating {

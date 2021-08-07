@@ -1,6 +1,7 @@
 require("dotenv").config();
 const db = require("./connection");
-const { User } = require("../models");
+const { User, MangaTitle } = require("../models");
+const mangaList = require("./mangaList");
 
 db.once("open", async () => {
   await User.deleteMany({});
@@ -12,12 +13,9 @@ db.once("open", async () => {
     savedManga: ["naruto"],
   });
 
-  await User.create({
-    name: "Elijah",
-    email: "eholt@testmail.com",
-    password: "password12345",
-    savedManga: ["bleach"],
-  });
+  for (const manga of mangaList) {
+    await MangaTitle.create(manga);
+  }
 
   console.log("users seeded");
 
