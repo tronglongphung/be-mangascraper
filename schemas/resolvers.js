@@ -31,7 +31,9 @@ const resolvers = {
 
     mangas: async (parent, args, context, info) => {
       const data = await Manga.getMangaDataFromSearch(args.name);
-      console.log(data);
+
+      //how to use fetchCoverImg() inside an array
+
       return data;
     },
 
@@ -59,6 +61,7 @@ const resolvers = {
           }`,
         };
       });
+      console.log(panelData);
       return cleanPanels;
     },
   },

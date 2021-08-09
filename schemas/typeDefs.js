@@ -41,6 +41,7 @@ const typeDefs = gql`
 
   type Manga {
     name: String
+    coverImg: String
     alternative: [String]
     authors: [String]
     status: String
