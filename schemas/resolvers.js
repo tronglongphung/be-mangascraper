@@ -17,8 +17,6 @@ const resolvers = {
 
     mangaData: async (parent, args, context, info) => {
       const rawData = await Manga.getMangaDataFromURL(args.url);
-      // TODO: scrape cover image
-      const coverImg = await fetchCoverImg(args.url);
 
       return {
         name: rawData.name,
@@ -32,9 +30,19 @@ const resolvers = {
     mangas: async (parent, args, context, info) => {
       const data = await Manga.getMangaDataFromSearch(args.name);
 
-      //how to use fetchCoverImg() inside an array
+      for (const item of data) {
+        const coverImg = await fetchCoverImg(item.url);
+        // console.log(coverImg);
+        item["cover"] = coverImg;
+      }
 
-      return data;
+      return data.map((item) => ({
+        name: item.name,
+        status: item.status,
+        chapters: item.chapters,
+        url: `${item.url.split("/")[3]}`,
+        coverImg: item.cover,
+      }));
     },
 
     manga: async (parent, args, context, info) => {
@@ -45,10 +53,6 @@ const resolvers = {
       );
       console.log(data);
       return data;
-      // return {
-      //   ...data,
-      //   url: `${data.url.split("/")[3]}/${data.url.split("/")[4]}`,
-      // };
     },
 
     chapter: async (parent, args, context, info) => {
