@@ -1,4 +1,4 @@
 const User = require("./User");
-const MangaTitle = require("./MangaTitle");
+const Manga = require("./Manga");
 
-module.exports = { User, MangaTitle };
+module.exports = { User, Manga };

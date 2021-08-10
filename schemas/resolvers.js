@@ -1,8 +1,8 @@
 const { AuthenticationError } = require("apollo-server-express");
-const { User } = require("../models");
+const { User, Manga } = require("../models");
 const { signToken } = require("../utils/auth");
 const { getChapterPanels } = require("../utils/chapterPanels");
-const Manga = require("manganelo-scraper").scraper;
+const manganelo = require("manganelo-scraper").scraper;
 const { fetchCoverImg } = require("../utils/fetchCoverImg");
 const { fetchAllManga } = require("../utils/getAllMangas");
 
@@ -16,48 +16,85 @@ const resolvers = {
       throw new AuthenticationError("Not logged in");
     },
 
-    mangaData: async (parent, args, context, info) => {
-      const rawData = await Manga.getMangaDataFromURL(args.url);
+    // mangaData: async (parent, { url }, context, info) => {
+    //   const managaLocal = await Manga.findOne({ url }).exec();
 
-      return {
-        name: rawData.name,
-        status: rawData.status,
-        chapters: rawData.chapters,
-        url: `${rawData.url.split("/")[3]}`,
-        coverImg: coverImg,
-      };
-    },
+    //   console.log({ managaLocal });
+
+    //   if (!managaLocal) {
+    //     const rawData = await manganelo.getMangaDataFromURL(url);
+
+    //     const coverImg = await fetchCoverImg(url);
+
+    //     const newManga = Manga.create({
+    //       ...rawData,
+    //       url: `${rawData.url.split("/")[3]}`,
+    //       coverImg,
+    //     });
+
+    //     console.log({ newManga });
+
+    //     return newManga;
+    //   } else {
+    //     return managaLocal;
+    //   }
+    // },
 
     allMangas: async (parent, args, context, info) => {
       const data = await fetchAllManga();
       return data;
     },
 
-    mangas: async (parent, args, context, info) => {
-      const data = await Manga.getMangaDataFromSearch(args.name);
+    mangas: async (parent, { name }, context, info) => {
+      const managaLocal = await Manga.find({
+        name: { $regex: name, $options: "i" },
+      }).exec();
 
-      for (const item of data) {
-        const coverImg = await fetchCoverImg(item.url);
-        // console.log(coverImg);
-        item["cover"] = coverImg;
+      console.log({ managaLocal });
+
+      if (managaLocal.length === 0) {
+        const data = await manganelo.getMangaDataFromSearch(name);
+
+        for (const item of data) {
+          const coverImg = await fetchCoverImg(item.url);
+
+          item["url"] = `${item.url.split("/")[3]}`;
+          item["coverImg"] = coverImg;
+        }
+
+        const newMangas = await Manga.insertMany(data);
+        console.log({ newMangas });
+        return newMangas;
+      } else {
+        return managaLocal;
       }
-
-      return data.map((item) => ({
-        name: item.name,
-        status: item.status,
-        chapters: item.chapters,
-        url: `${item.url.split("/")[3]}`,
-        coverImg: item.cover,
-      }));
     },
 
-    manga: async (parent, args, context, info) => {
-      // mangaKey should look like manga-aa951409
-      const data = await Manga.getMangaDataFromURL(
-        `https://readmanganato.com/${args.key}`
-      );
+    manga: async (parent, { key }, context, info) => {
+      const url = `https://readmanganato.com/${key}`;
+      const managaLocal = await Manga.findOne({ url: key }).exec();
 
-      return data;
+      console.log({ managaLocal });
+
+      if (!managaLocal) {
+        const data = await manganelo.getMangaDataFromURL(url);
+        console.log(data.chapters);
+        const coverImg = await fetchCoverImg(url);
+
+        const newManga = await Manga.create({
+          name: data.name,
+          status: data.status,
+          chapters: data.chapters,
+          url: `${data.url.split("/")[3]}`,
+          coverImg: coverImg,
+        });
+
+        console.log({ newManga });
+
+        return newManga;
+      } else {
+        return managaLocal;
+      }
     },
 
     chapter: async (parent, args, context, info) => {
@@ -70,7 +107,6 @@ const resolvers = {
           }`,
         };
       });
-      console.log(panelData);
       return cleanPanels;
     },
   },
@@ -81,9 +117,6 @@ const resolvers = {
 
       return { token, user };
     },
-
-    // addManga: async (parent, args) =>
-
     updateUser: async (parent, args, context) => {
       if (context.user) {
         return await User.findByIdAndUpdate(context.user._id, args, {

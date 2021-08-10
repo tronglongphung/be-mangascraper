@@ -4,7 +4,6 @@ const fetch = require("node-fetch");
 const PROXY_URL = "https://thingproxy.freeboard.io/fetch/";
 const BASE_URL = PROXY_URL + "https://manganato.com/genre-all";
 
-// idea too hard
 async function fetchAllManga() {
   const response = await fetch(BASE_URL);
   const html = await response.text();
