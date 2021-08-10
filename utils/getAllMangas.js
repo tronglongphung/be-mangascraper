@@ -2,17 +2,17 @@ const cheerio = require("cheerio");
 const fetch = require("node-fetch");
 
 const PROXY_URL = "https://thingproxy.freeboard.io/fetch/";
-const BASE_URL = PROXY_URL + "https://manganelo.com/";
+const BASE_URL = PROXY_URL + "https://manganato.com/genre-all";
 
 // idea too hard
 async function fetchAllManga() {
-  const response = await fetch(BASE_URL + "genre-all");
+  const response = await fetch(BASE_URL);
   const html = await response.text();
-  // working
   const $ = cheerio.load(html);
   const $body = $("body");
   const $contentGenres = $body.find(".panel-content-genres");
-
+  const contentGenres = $contentGenres.length;
+  // console.log(contentGenres);
   //if no items found
   if (!$contentGenres.length) {
     return {
@@ -29,14 +29,14 @@ async function fetchAllManga() {
   }
   //items found
   const $genres = $contentGenres.children();
-  console.log($genres);
-
+  // this map does not work properly
   const mangas = $genres
     .map((_, el) => {
       const $itemImg = $(el).find(".genres-item-img");
       const $itemInfo = $(el).find(".genres-item-info");
       const [, slug] = $itemImg.attr("href").match(/manga\/([A-Za-z0-9_]+)/);
       const imageUrl = $itemImg.find("img").attr("src");
+      console.log(imageUrl);
       const title = $itemInfo.find("h3").text();
       const $genresItemChap = $itemInfo.find(".genres-item-chap");
       const chapterTitle = $genresItemChap.attr("title");
@@ -56,6 +56,7 @@ async function fetchAllManga() {
       };
     })
     .get();
+  console.log(mangas);
 
   const $pageNumber = $body.find(".panel-page-number");
   const hasPageNumber = !!$pageNumber.length;

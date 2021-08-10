@@ -4,6 +4,7 @@ const { signToken } = require("../utils/auth");
 const { getChapterPanels } = require("../utils/chapterPanels");
 const Manga = require("manganelo-scraper").scraper;
 const { fetchCoverImg } = require("../utils/fetchCoverImg");
+const { fetchAllManga } = require("../utils/getAllMangas");
 
 const resolvers = {
   Query: {
@@ -25,6 +26,11 @@ const resolvers = {
         url: `${rawData.url.split("/")[3]}`,
         coverImg: coverImg,
       };
+    },
+
+    allMangas: async (parent, args, context, info) => {
+      const data = await fetchAllManga();
+      return data;
     },
 
     mangas: async (parent, args, context, info) => {
@@ -49,9 +55,8 @@ const resolvers = {
       // mangaKey should look like manga-aa951409
       const data = await Manga.getMangaDataFromURL(
         `https://readmanganato.com/${args.key}`
-        // `https://readmanganato.com/manga-aa951409`
       );
-      console.log(data);
+
       return data;
     },
 
@@ -76,6 +81,9 @@ const resolvers = {
 
       return { token, user };
     },
+
+    // addManga: async (parent, args) =>
+
     updateUser: async (parent, args, context) => {
       if (context.user) {
         return await User.findByIdAndUpdate(context.user._id, args, {
