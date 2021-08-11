@@ -30,8 +30,7 @@ const typeDefs = gql`
     mangas(name: String!): [Manga]
     manga(key: String!): Manga
     chapter(url: String!): [Panel]
-    allMangas: [Manga]
-    mangaData(url: String!): Manga
+    allLocalMangas: [Manga]
   }
 
   type Rating {

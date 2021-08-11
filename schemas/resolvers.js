@@ -4,7 +4,6 @@ const { signToken } = require("../utils/auth");
 const { getChapterPanels } = require("../utils/chapterPanels");
 const manganelo = require("manganelo-scraper").scraper;
 const { fetchCoverImg } = require("../utils/fetchCoverImg");
-const { fetchAllManga } = require("../utils/getAllMangas");
 
 const resolvers = {
   Query: {
@@ -16,43 +15,20 @@ const resolvers = {
       throw new AuthenticationError("Not logged in");
     },
 
-    // mangaData: async (parent, { url }, context, info) => {
-    //   const managaLocal = await Manga.findOne({ url }).exec();
-
-    //   console.log({ managaLocal });
-
-    //   if (!managaLocal) {
-    //     const rawData = await manganelo.getMangaDataFromURL(url);
-
-    //     const coverImg = await fetchCoverImg(url);
-
-    //     const newManga = Manga.create({
-    //       ...rawData,
-    //       url: `${rawData.url.split("/")[3]}`,
-    //       coverImg,
-    //     });
-
-    //     console.log({ newManga });
-
-    //     return newManga;
-    //   } else {
-    //     return managaLocal;
-    //   }
-    // },
-
-    allMangas: async (parent, args, context, info) => {
-      const data = await fetchAllManga();
-      return data;
+    allLocalMangas: async () => {
+      const mangaLocal = await Manga.find({});
+      console.log(mangaLocal);
+      return mangaLocal;
     },
 
     mangas: async (parent, { name }, context, info) => {
-      const managaLocal = await Manga.find({
+      const mangaLocal = await Manga.find({
         name: { $regex: name, $options: "i" },
       }).exec();
 
-      console.log({ managaLocal });
+      console.log({ mangaLocal: mangaLocal });
 
-      if (managaLocal.length === 0) {
+      if (mangaLocal.length === 0) {
         const data = await manganelo.getMangaDataFromSearch(name);
 
         for (const item of data) {
@@ -66,17 +42,17 @@ const resolvers = {
         console.log({ newMangas });
         return newMangas;
       } else {
-        return managaLocal;
+        return mangaLocal;
       }
     },
 
     manga: async (parent, { key }, context, info) => {
       const url = `https://readmanganato.com/${key}`;
-      const managaLocal = await Manga.findOne({ url: key }).exec();
+      const mangaLocal = await Manga.findOne({ url: key }).exec();
 
-      console.log({ managaLocal });
+      console.log({ mangaLocal: mangaLocal });
 
-      if (!managaLocal) {
+      if (!mangaLocal) {
         const data = await manganelo.getMangaDataFromURL(url);
         console.log(data.chapters);
         const coverImg = await fetchCoverImg(url);
@@ -93,7 +69,7 @@ const resolvers = {
 
         return newManga;
       } else {
-        return managaLocal;
+        return mangaLocal;
       }
     },
 
