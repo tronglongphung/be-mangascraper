@@ -16,8 +16,7 @@ const resolvers = {
     },
 
     allLocalMangas: async () => {
-      const mangaLocal = await Manga.find({});
-      console.log(mangaLocal);
+      const mangaLocal = await Manga.find({}).limit(40);
       return mangaLocal;
     },
 
@@ -37,6 +36,12 @@ const resolvers = {
           item["url"] = `${item.url.split("/")[3]}`;
           item["coverImg"] = coverImg;
         }
+
+        // const mangaLocal = await Manga.find({});
+        // // try and filter names out
+        // const checkDupes = await data.filter(!mangaLocal.name){
+        //   return Manga.insertMany(data)
+        // }
 
         const newMangas = await Manga.insertMany(data);
         console.log({ newMangas });
@@ -93,14 +98,23 @@ const resolvers = {
 
       return { token, user };
     },
-    updateUser: async (parent, args, context) => {
+
+    addFavourite: async (parent, args, context) => {
       if (context.user) {
         return await User.findByIdAndUpdate(context.user._id, args, {
           new: true,
         });
       }
-      throw new AuthenticationError("Not logged in");
     },
+
+    removeFavourite: async (parent, args, context) => {
+      if (context.user) {
+        return await User.findByIdAndRemove(context.user._id, args, {
+          new: true,
+        });
+      }
+    },
+
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
 
