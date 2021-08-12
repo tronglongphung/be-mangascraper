@@ -27,7 +27,7 @@ const resolvers = {
         name: { $regex: name, $options: "i" },
       }).exec();
 
-      console.log({ mangaLocal: mangaLocal });
+      // console.log({ mangaLocal: mangaLocal });
 
       if (mangaLocal.length === 0) {
         const data = await manganelo.getMangaDataFromSearch(name);
@@ -39,14 +39,8 @@ const resolvers = {
           item["coverImg"] = coverImg;
         }
 
-        // const mangaLocal = await Manga.find({});
-        // // try and filter names out
-        // const checkDupes = await data.filter(!mangaLocal.name){
-        //   return Manga.insertMany(data)
-        // }
-
         const newMangas = await Manga.insertMany(data);
-        console.log({ newMangas });
+        // console.log({ newMangas });
         return newMangas;
       } else {
         return mangaLocal;
@@ -57,11 +51,11 @@ const resolvers = {
       const url = `https://readmanganato.com/${key}`;
       const mangaLocal = await Manga.findOne({ url: key }).exec();
 
-      console.log({ mangaLocal: mangaLocal });
+      // console.log({ mangaLocal: mangaLocal });
 
       if (!mangaLocal) {
         const data = await manganelo.getMangaDataFromURL(url);
-        console.log(data.chapters);
+        // console.log(data.chapters);
         const coverImg = await fetchCoverImg(url);
 
         const newManga = await Manga.create({
@@ -72,7 +66,7 @@ const resolvers = {
           coverImg: coverImg,
         });
 
-        console.log({ newManga });
+        // console.log({ newManga });
 
         return newManga;
       } else {
@@ -102,7 +96,7 @@ const resolvers = {
     },
 
     addFavourite: async (parent, { id }, context) => {
-      console.log({ id });
+      // console.log({ id });
       if (context.user) {
         const user = await User.findByIdAndUpdate(
           context.user._id,
@@ -111,7 +105,7 @@ const resolvers = {
             new: true,
           }
         ).populate("savedManga");
-        console.log({ user });
+        // console.log({ user });
         return user;
       }
     },
@@ -125,7 +119,7 @@ const resolvers = {
             new: true,
           }
         );
-        console.log({ user });
+        // console.log({ user });
         return user;
       }
     },
