@@ -110,8 +110,8 @@ const resolvers = {
           {
             new: true,
           }
-        );
-        // console.log({ user });
+        ).populate("savedManga");
+        console.log({ user });
         return user;
       }
     },
