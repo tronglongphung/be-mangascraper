@@ -9,7 +9,9 @@ const resolvers = {
   Query: {
     user: async (parent, args, context) => {
       if (context.user) {
-        const user = await User.findById(context.user._id);
+        const user = await User.findById(context.user._id).populate(
+          "savedManga"
+        );
         return user;
       }
       throw new AuthenticationError("Not logged in");
@@ -99,19 +101,32 @@ const resolvers = {
       return { token, user };
     },
 
-    addFavourite: async (parent, args, context) => {
+    addFavourite: async (parent, { id }, context) => {
+      console.log({ id });
       if (context.user) {
-        return await User.findByIdAndUpdate(context.user._id, args, {
-          new: true,
-        });
+        const user = await User.findByIdAndUpdate(
+          context.user._id,
+          { $addToSet: { savedManga: id } },
+          {
+            new: true,
+          }
+        );
+        // console.log({ user });
+        return user;
       }
     },
 
-    removeFavourite: async (parent, args, context) => {
+    removeFavourite: async (parent, { id }, context) => {
       if (context.user) {
-        return await User.findByIdAndRemove(context.user._id, args, {
-          new: true,
-        });
+        const user = await User.findByIdAndUpdate(
+          context.user._id,
+          { $pull: { savedManga: id } },
+          {
+            new: true,
+          }
+        );
+        console.log({ user });
+        return user;
       }
     },
 

@@ -17,7 +17,7 @@ const typeDefs = gql`
     name: String
     password: String
     email: String
-    savedManga: [String]
+    savedManga: [Manga]
   }
 
   type Auth {
@@ -39,6 +39,7 @@ const typeDefs = gql`
   }
 
   type Manga {
+    _id: ID
     name: String
     coverImg: String
     alternative: [String]
@@ -66,8 +67,8 @@ const typeDefs = gql`
 
   type Mutation {
     addUser(name: String!, email: String!, password: String!): Auth
-    addFavourite(savedManga: [String]): User
-    removeFavourite(savedManga: [String]): User
+    addFavourite(id: ID!): User
+    removeFavourite(id: ID!): User
     login(email: String!, password: String!): Auth
   }
 `;
